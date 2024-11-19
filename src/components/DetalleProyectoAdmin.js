@@ -13,7 +13,6 @@ function DetalleProyectoAdmin() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch para cargar el proyecto actual
     const fetchProyecto = async () => {
       try {
         const response = await fetch(
@@ -22,7 +21,7 @@ function DetalleProyectoAdmin() {
         if (response.ok) {
           const data = await response.json();
           setProyecto(data);
-          setEstado(data.estado); // Estado inicial
+          setEstado(data.estado !== "Por revisar" ? data.estado : "Aceptado"); // Valor inicial válido
         } else {
           alert("Error al cargar los detalles del proyecto");
         }
@@ -30,17 +29,21 @@ function DetalleProyectoAdmin() {
         console.error("Error al cargar el proyecto:", error);
       }
     };
-
+  
     fetchProyecto();
   }, [id]);
+  
 
   const handleEstadoChange = async (e) => {
     e.preventDefault();
 
-    console.log("Estado a enviar:", estado); // Confirmar valor actualizado
+    if (!estado) {
+      alert("Debes seleccionar un estado antes de enviar.");
+      return;
+    }
 
     const data = {
-      estado,
+      estado, // Enviar el estado actual
       comentarios: {
         user: localStorage.getItem("user"), // Usuario actual
         comentario, // Comentario ingresado
@@ -49,9 +52,9 @@ function DetalleProyectoAdmin() {
 
     setLoading(true);
     try {
-      await cambiarEstadoProyectoService(id, data);
+      await cambiarEstadoProyectoService(id, data); // Llamar al servicio
       alert("Estado actualizado con éxito");
-      navigate("/proyectos");
+      navigate("/proyectos"); // Regresar a la lista de proyectos
     } catch (error) {
       alert("Error al actualizar el estado del proyecto");
       console.error(error);
@@ -100,7 +103,7 @@ function DetalleProyectoAdmin() {
             required
           >
             {/* Renderizamos solo las opciones distintas a "Por revisar" */}
-            {["Aprobado", "Rechazado"].map((estado) => (
+            {["Aceptado", "Rechazado"].map((estado) => (
               <option key={estado} value={estado}>
                 {estado}
               </option>
