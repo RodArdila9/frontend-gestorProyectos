@@ -33,6 +33,7 @@ function Login() {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem("userId", data.id); // Guardar el ID del usuario
+        localStorage.setItem("role", data.rol); // Guardar el ID del usuario
         navigate("/proyectos"); // Redirigir a proyectos
       } else {
         alert("Credenciales inválidas");

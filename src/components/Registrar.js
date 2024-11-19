@@ -35,7 +35,7 @@ function Registrar() {
 
       if (response.ok) {
         alert("Usuario registrado exitosamente");
-        navigate("/"); // Redirige al login
+        navigate("/login"); // Redirige al login
       } else {
         alert("Error al registrar usuario");
       }

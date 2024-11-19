@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchProyectosService } from "../services/proyectosService"; // Importamos el servicio
-import "../styles/Proyectos.css"; // Importamos los estilos
+import { fetchProyectosService } from "../services/proyectosService";
+import "../styles/Proyectos.css";
 
 function Proyectos() {
   const [proyectos, setProyectos] = useState([]);
@@ -11,8 +11,11 @@ function Proyectos() {
 
   useEffect(() => {
     const fetchProyectos = async () => {
+      const role = localStorage.getItem("role"); // Obtén el rol del usuario
+      const userId = localStorage.getItem("userId"); // Obtén el userId si existe
+
       try {
-        const data = await fetchProyectosService();
+        const data = await fetchProyectosService(role, userId); // Llama al servicio con el rol y userId
         setProyectos(data);
       } catch (error) {
         setError(error.message);
