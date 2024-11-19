@@ -51,7 +51,7 @@ function CrearProyecto() {
   };
 
   return (
-    <div className="container mt-5 p-5 bg-light rounded shadow">
+    <div className="container mt-5 p-4 bg-light rounded shadow">
       <h2 className="text-center mb-4">Información del nuevo proyecto</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group mb-4">

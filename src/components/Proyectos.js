@@ -73,7 +73,14 @@ function Proyectos() {
               </div>
               <button
                 className="btn btn-outline-primary"
-                onClick={() => navigate(`/proyecto/${proyecto.id}`)}
+                onClick={() => {
+                  const role = localStorage.getItem("role");
+                  if (role === "admin") {
+                    navigate(`/cambiar-estado/${proyecto.id}`); // Redirigir a la vista para admin
+                  } else {
+                    navigate(`/proyecto-detalles/${proyecto.id}`); // Redirigir a la vista normal
+                  }
+                }}
               >
                 Ver detalles
               </button>

@@ -1,105 +1,161 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { registrarUsuarioService } from "../services/registrar-usuarioService"; // Importar el servicio
+import "../styles/Registrar.css"; // Estilos para esta página
 
 function Registrar() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     nombre: "",
     apellidos: "",
+    user: "",
     edad: "",
     estrato: "",
     ciudad: "",
-    user: "",
     password: "",
+    confirmarContrasena: "",
   });
 
-  const navigate = useNavigate();
-
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch(
-        "http://localhost:8088/gestor/api/usuario/crear",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
 
-      if (response.ok) {
-        alert("Usuario registrado exitosamente");
-        navigate("/login"); // Redirige al login
-      } else {
-        alert("Error al registrar usuario");
-      }
+    if (formData.password !== formData.confirmarContrasena) {
+      alert("Las contraseñas no coinciden.");
+      return;
+    }
+
+    try {
+      await registrarUsuarioService(formData); // Usar el servicio para registrar
+      alert("Usuario registrado exitosamente");
+      navigate("/login"); // Redirigir al login
     } catch (error) {
-      console.error("Error en el registro:", error);
+      alert(error.message || "Error en el registro");
     }
   };
 
   return (
-    <div>
-      <h1>Registrar Usuario</h1>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Nombre:
-          <input type="text" name="nombre" onChange={handleChange} required />
-        </label>
-        <br />
-        <label>
-          Apellidos:
-          <input
-            type="text"
-            name="apellidos"
-            onChange={handleChange}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Edad:
-          <input type="text" name="edad" onChange={handleChange} required />
-        </label>
-        <br />
-        <label>
-          Estrato:
-          <input
-            type="text"
-            name="estrato"
-            onChange={handleChange}
-            required
-          />
-        </label>
-        <br />
-        <label>
-          Ciudad:
-          <input type="text" name="ciudad" onChange={handleChange} required />
-        </label>
-        <br />
-        <label>
-          Usuario:
-          <input type="text" name="user" onChange={handleChange} required />
-        </label>
-        <br />
-        <label>
-          Contraseña:
-          <input
-            type="password"
-            name="password"
-            onChange={handleChange}
-            required
-          />
-        </label>
-        <br />
-        <button type="submit">Registrar</button>
-      </form>
+    <div className="crear-cuenta-page">
+      <div className="form-container">
+        <h1>Crear cuenta</h1>
+        <form onSubmit={handleSubmit}>
+          <div className="form-row">
+            <div className="form-column">
+              <label htmlFor="nombre">Nombre</label>
+              <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                value={formData.nombre}
+                onChange={handleChange}
+                placeholder="Introduce tu nombre"
+                required
+              />
+            </div>
+            <div className="form-column">
+              <label htmlFor="apellidos">Apellidos</label>
+              <input
+                type="text"
+                id="apellidos"
+                name="apellidos"
+                value={formData.apellidos}
+                onChange={handleChange}
+                placeholder="Introduce tus apellidos"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-column">
+              <label htmlFor="usuario">Usuario</label>
+              <input
+                type="text"
+                id="usuario"
+                name="user"
+                value={formData.user}
+                onChange={handleChange}
+                placeholder="Introduce tu usuario"
+                required
+              />
+            </div>
+            <div className="form-column">
+              <label htmlFor="edad">Edad</label>
+              <input
+                type="number"
+                id="edad"
+                name="edad"
+                value={formData.edad}
+                onChange={handleChange}
+                placeholder="Introduce tu edad"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-column">
+              <label htmlFor="estrato">Estrato</label>
+              <input
+                type="number"
+                id="estrato"
+                name="estrato"
+                value={formData.estrato}
+                onChange={handleChange}
+                placeholder="Introduce tu estrato"
+                required
+              />
+            </div>
+            <div className="form-column">
+              <label htmlFor="ciudad">Ciudad</label>
+              <input
+                type="text"
+                id="ciudad"
+                name="ciudad"
+                value={formData.ciudad}
+                onChange={handleChange}
+                placeholder="Introduce tu ciudad"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-column">
+              <label htmlFor="contrasena">Contraseña</label>
+              <input
+                type="password"
+                id="contrasena"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Introduce tu contraseña"
+                required
+              />
+            </div>
+            <div className="form-column">
+              <label htmlFor="confirmarContrasena">Confirmar Contraseña</label>
+              <input
+                type="password"
+                id="confirmarContrasena"
+                name="confirmarContrasena"
+                value={formData.confirmarContrasena}
+                onChange={handleChange}
+                placeholder="Confirma tu contraseña"
+                required
+              />
+            </div>
+          </div>
+
+          <button type="submit" className="btn-submit">Registrarse</button>
+        </form>
+      </div>
     </div>
   );
 }
