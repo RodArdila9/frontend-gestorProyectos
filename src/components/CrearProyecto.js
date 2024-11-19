@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 function CrearProyecto() {
@@ -6,17 +6,17 @@ function CrearProyecto() {
   const [descripcion, setDescripcion] = useState("");
   const [categoria, setCategoria] = useState("");
   const [categorias, setCategorias] = useState([]);
-  const [userId, setUserId] = useState(""); // Guardar ID del usuario logueado
+  const [userId, setUserId] = useState(""); // Captura el userId
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Obtener el ID del usuario desde localStorage
-    const storedUserId = localStorage.getItem("userId");
-    if (storedUserId) {
-      setUserId(storedUserId);
+    // Recuperar el ID del usuario logueado desde localStorage
+    const loggedUserId = localStorage.getItem("userId");
+    if (loggedUserId) {
+      setUserId(loggedUserId);
     }
 
-    // Obtener categorías desde el endpoint
+    // Cargar las categorías desde el endpoint
     const fetchCategorias = async () => {
       try {
         const response = await fetch(
@@ -25,17 +25,26 @@ function CrearProyecto() {
         if (response.ok) {
           const data = await response.json();
           setCategorias(data);
+        } else {
+          console.error("Error al cargar categorías");
         }
       } catch (error) {
-        console.error("Error al cargar categorías:", error);
+        console.error("Error de red:", error);
       }
     };
-
     fetchCategorias();
   }, []);
 
-  const handleCrearProyecto = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const proyecto = {
+      nombre,
+      descripcion,
+      categoria,
+      userId,
+    };
+
     try {
       const response = await fetch(
         "http://localhost:8088/gestor/api/proyectos/crear",
@@ -44,77 +53,86 @@ function CrearProyecto() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            nombre,
-            descripcion,
-            categoria,
-            userId,
-            fechaCreacion: new Date().toISOString(),
-            fechaModificacion: new Date().toISOString(),
-          }),
+          body: JSON.stringify(proyecto),
         }
       );
-
       if (response.ok) {
-        alert("Proyecto creado exitosamente");
-        navigate("/proyectos");
+        alert("Proyecto creado con éxito");
+        navigate("/proyectos"); // Redirigir a la lista de proyectos
       } else {
         alert("Error al crear el proyecto");
       }
     } catch (error) {
-      console.error("Error al crear el proyecto:", error);
+      console.error("Error al crear proyecto:", error);
     }
   };
 
   return (
-    <div>
-      <h1>Crear Proyecto</h1>
-      <form onSubmit={handleCrearProyecto}>
-        <div>
-          <label>
-            Título del proyecto:
-            <input
-              type="text"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              required
-            />
-          </label>
+    <div className="container mt-5 p-5 bg-light rounded shadow">
+      <h2 className="text-center mb-4">Información del nuevo proyecto</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group mb-4">
+          <label htmlFor="nombre">Título del proyecto</label>
+          <input
+            type="text"
+            className="form-control"
+            id="nombre"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            placeholder="Escribe el título del proyecto"
+            required
+          />
         </div>
-        <div>
-          <label>
-            Descripción:
-            <textarea
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              required
-            />
-          </label>
+        <div className="form-group mb-4">
+          <label htmlFor="categoria">Categoría</label>
+          <select
+            className="form-control"
+            id="categoria"
+            value={categoria}
+            style={{ width: "100%", maxWidth: "350px" }}
+            onChange={(e) => setCategoria(e.target.value)}
+            required
+          >
+            <option value="">Seleccione una categoría</option>
+            {categorias.map((cat) => (
+              <option key={cat.id} value={cat.name}>
+                {cat.nombre}
+              </option>
+            ))}
+          </select>
         </div>
-        <div>
-          <label>
-            Categoría:
-            <select
-              value={categoria}
-              onChange={(e) => setCategoria(e.target.value)}
-              required
-            >
-              <option value="">Seleccione una categoría</option>
-              {categorias.map((cat) => (
-                <option key={cat.nombre} value={cat.nombre}>
-                  {cat.nombre}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="form-group mb-4">
+          <label htmlFor="userId">ID del usuario</label>
+          <input
+            type="text"
+            className="form-control"
+            id="userId"
+            style={{ width: "100%", maxWidth: "350px" }}
+            value={userId}
+            disabled
+          />
         </div>
-        <div>
-          <label>
-            ID del Usuario (automático):
-            <input type="text" value={userId} readOnly />
-          </label>
+        <div className="form-group mb-5">
+          <label htmlFor="descripcion">Descripción</label>
+          <textarea
+            className="form-control"
+            id="descripcion"
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            rows="4"
+            placeholder="Describe el proyecto"
+            required
+          ></textarea>
         </div>
-        <button type="submit">Crear Proyecto</button>
+        <div className="d-flex justify-content-center">
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{ width: "100%", maxWidth: "200px" }}
+          >
+            Crear
+          </button>
+        </div>
       </form>
     </div>
   );

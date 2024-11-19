@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 function Proyectos() {
   const [proyectos, setProyectos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(""); // Manejo de errores
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,12 +18,12 @@ function Proyectos() {
           const data = await response.json();
           setProyectos(data);
         } else {
-          setError("Error al cargar proyectos"); // Error del servidor
+          setError("Error al cargar proyectos");
         }
       } catch (error) {
-        setError("Error de red: no se pudo conectar al servidor"); // Error de red
+        setError("Error de red: no se pudo conectar al servidor");
       } finally {
-        setLoading(false); // Finalizar la carga
+        setLoading(false);
       }
     };
 
@@ -31,37 +31,72 @@ function Proyectos() {
   }, []);
 
   if (loading) {
-    return <p>Cargando proyectos...</p>; // Mensaje de carga
+    return <p className="text-center mt-5">Cargando proyectos...</p>;
   }
 
   if (error) {
-    return <p>{error}</p>; // Mostrar errores
+    return <p className="text-center text-danger mt-5">{error}</p>;
   }
 
-  const handleCrearSolicitud = () => {
-    navigate("/crear-proyecto"); // Ruta hacia el formulario de creación
-  };
+  if (proyectos.length === 0) {
+    return (
+      <div className="container mt-5 p-5 bg-light rounded shadow text-center">
+        <h2 className="mb-4">Lista de proyectos</h2>
+        <img
+          src="https://img.freepik.com/vector-premium/portapapeles-signo-simbolo-vector-glifo-color-icono_942266-452.jpg?w=250" // Cambia esto por la URL o ruta de tu imagen
+          alt="Lista de proyectos"
+          className="mt-4 mb-4"
+        />
+        <h5 className="mb-2">Aún no tienes solicitudes registradas</h5>
+        <p className="text-muted mb-4">
+          Aquí se mostrarán todas tus solicitudes
+        </p>
+        <button
+          className="btn btn-primary"
+          onClick={() => navigate("/crear-proyecto")}
+        >
+          Crear proyecto
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1>Proyectos</h1>
-      <button onClick={handleCrearSolicitud} className="btn btn-primary">
-        Crear solicitud
-      </button>
-      {proyectos.length === 0 ? (
-        <div>
-          <p>Aún no tienes solicitudes registradas</p>
-        </div>
-      ) : (
-        <ul>
-          {proyectos.map((proyecto) => (
-            <li key={proyecto.id}>
-              <h2>{proyecto.nombre}</h2>
-              <p>{proyecto.descripcion}</p>
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="container mt-5 p-5 bg-light rounded shadow">
+      <h2 className="text-center mb-5">Lista de proyectos</h2>
+      <div
+        style={{
+          maxHeight: "400px",
+          overflowY: "auto",
+        }}
+        className="list-group"
+      >
+        {proyectos.map((proyecto) => (
+          <div key={proyecto.id} className="list-group-item mb-3 shadow-sm">
+            <div className="d-flex justify-content-between align-items-center">
+              <div>
+                <h5 className="mb-2">{proyecto.nombre}</h5>
+                <p className="mb-2 text-muted">{"Estado: " + proyecto.estado}</p>
+              </div>
+              <button
+                className="btn btn-outline-primary"
+                onClick={() => alert(`Detalles de: ${proyecto.nombre}`)}
+              >
+                Ver detalles
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-5 text-center">
+        <button
+          className="btn btn-primary"
+          style={{ width: "100%", maxWidth: "200px" }}
+          onClick={() => navigate("/crear-proyecto")}
+        >
+          Crear solicitud
+        </button>
+      </div>
     </div>
   );
 }
