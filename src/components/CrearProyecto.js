@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  fetchCategoriasService,
+  crearProyectoService,
+} from "../services/crear-proyectosService"; // Importamos los servicios
+import "../styles/CrearProyecto.css"; // Importamos los estilos
 
 function CrearProyecto() {
   const [nombre, setNombre] = useState("");
@@ -10,60 +15,38 @@ function CrearProyecto() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Recuperar el ID del usuario logueado desde localStorage
     const loggedUserId = localStorage.getItem("userId");
     if (loggedUserId) {
       setUserId(loggedUserId);
     }
 
-    // Cargar las categorías desde el endpoint
-    const fetchCategorias = async () => {
+    const loadCategorias = async () => {
       try {
-        const response = await fetch(
-          "http://localhost:8088/gestor/api/categorias/listar"
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setCategorias(data);
-        } else {
-          console.error("Error al cargar categorías");
-        }
+        const data = await fetchCategoriasService();
+        setCategorias(data);
       } catch (error) {
-        console.error("Error de red:", error);
+        console.error(error.message);
       }
     };
-    fetchCategorias();
+
+    loadCategorias();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const proyecto = {
-      nombre,
-      descripcion,
-      categoria,
-      userId,
-    };
+    const proyecto = { nombre, descripcion, categoria, userId };
 
     try {
-      const response = await fetch(
-        "http://localhost:8088/gestor/api/proyectos/crear",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(proyecto),
-        }
-      );
-      if (response.ok) {
+      const success = await crearProyectoService(proyecto);
+      if (success) {
         alert("Proyecto creado con éxito");
-        navigate("/proyectos"); // Redirigir a la lista de proyectos
+        navigate("/proyectos");
       } else {
         alert("Error al crear el proyecto");
       }
     } catch (error) {
-      console.error("Error al crear proyecto:", error);
+      console.error(error.message);
     }
   };
 
@@ -86,10 +69,9 @@ function CrearProyecto() {
         <div className="form-group mb-4">
           <label htmlFor="categoria">Categoría</label>
           <select
-            className="form-control"
+            className="form-control custom-control"
             id="categoria"
             value={categoria}
-            style={{ width: "100%", maxWidth: "350px" }}
             onChange={(e) => setCategoria(e.target.value)}
             required
           >
@@ -105,9 +87,8 @@ function CrearProyecto() {
           <label htmlFor="userId">ID del usuario</label>
           <input
             type="text"
-            className="form-control"
+            className="form-control custom-control"
             id="userId"
-            style={{ width: "100%", maxWidth: "350px" }}
             value={userId}
             disabled
           />
@@ -125,14 +106,18 @@ function CrearProyecto() {
           ></textarea>
         </div>
         <div className="d-flex justify-content-center">
-          <button
-            type="submit"
-            className="btn btn-primary"
-            style={{ width: "100%", maxWidth: "200px" }}
-          >
+          <button type="submit" className="btn btn-primary crear-btn">
             Crear
           </button>
         </div>
+        <div className="text-center mt-4">
+        <button
+          className="btn btn-primary volver-lista"
+          onClick={() => navigate("/proyectos")}
+        >
+          Volver a la lista
+        </button>
+      </div>
       </form>
     </div>
   );
